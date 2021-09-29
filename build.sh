@@ -126,17 +126,39 @@ cd ${SCRIPT_DIR}
 BIN_OUTPUT_DIR=/usr/bin
 LIB_OUTPUT_DIR=/lib/x86_64-linux-gnu/
 
+BUILD_DIR_ONLPS=${ONL}/packages/base/any/onlp/builds/onlpd/BUILD
+BUILD_DIR_ONLPS=${ONL}/packages/platforms/${ONIE_VENDOR}/${ONL_ARCH}/${ONL_MACHINE}/onlp/builds/onlps/BUILD
+BUILD_DIR_DEFAULTS=${ONL}/packages/base/any/onlp/builds/onlp-platform-defaults/BUILD
+BUILD_DIR_LIB_VENDOR=${ONL}/packages/platforms/${ONIE_VENDOR}/${ONL_ARCH}/${ONL_MACHINE}/onlp/builds/lib/BUILD
+BUILD_DIR_LIB_ONLP=${ONL}/packages/base/any/onlp/builds/onlp/BUILD
 
-BIN_ONLPD=${ONL}/packages/base/any/onlp/builds/onlpd/BUILD/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/onlpd
-BIN_ONLPS=${ONL}/packages/platforms/${ONIE_VENDOR}/${ONL_ARCH}/${ONL_MACHINE}/onlp/builds/onlps/BUILD/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/onlps
-LIB_DEFAULTS=${ONL}/packages/base/any/onlp/builds/onlp-platform-defaults/BUILD/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp-platform-defaults.so
-LIB_VENDOR=${ONL}/packages/platforms/${ONIE_VENDOR}/${ONL_ARCH}/${ONL_MACHINE}/onlp/builds/lib/BUILD/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp-${ONL_ARCH}-${ONIE_VENDOR}-${ONL_MACHINE}.so
-LIB_ONLP=${ONL}/packages/base/any/onlp/builds/onlp/BUILD/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp.so
+rm -rf ${BUILD_DIR_ONLPS}
+rm -rf ${BUILD_DIR_ONLPS}
+rm -rf ${BUILD_DIR_DEFAULTS}
+rm -rf ${BUILD_DIR_LIB_VENDOR}
+rm -rf ${BUILD_DIR_LIB_ONLP}
+
+BIN_ONLPD=${BUILD_DIR_ONLPS}/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/onlpd
+BIN_ONLPS=${BUILD_DIR_ONLPS}/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/onlps
+LIB_DEFAULTS=${BUILD_DIR_DEFAULTS}/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp-platform-defaults.so
+LIB_VENDOR=${BUILD_DIR_LIB_VENDOR}/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp-${ONL_ARCH}-${ONIE_VENDOR}-${ONL_MACHINE}.so
+LIB_ONLP=${BUILD_DIR_LIB_ONLP}/${ONL_DEBIAN_SUITE}/${TOOLCHAIN}/bin/libonlp.so
 
 LIB_PLATFORM=${OUTPUT_DIR}/lib/libonlp-platform.so
 
 #mkdir -p output/bin
 #mkdir -p output/lib
+
+sudo rm ${OUTPUT_DIR}/bin/onlpd
+sudo rm ${OUTPUT_DIR}/bin/onlps
+sudo rm ${LIB_OUTPUT_DIR}/libonlp-platform-defaults.so
+sudo rm ${LIB_OUTPUT_DIR}/libonlp-${ONL_ARCH}-${ONIE_VENDOR}-${ONL_MACHINE}.so
+sudo rm ${LIB_OUTPUT_DIR}/libonlp.so
+sudo rm ${LIB_OUTPUT_DIR}/libonlp-platform.so
+sudo rm ${LIB_OUTPUT_DIR}/libonlp.so.1
+sudo rm ${LIB_OUTPUT_DIR}/libonlp-platform.so.1
+sudo rm ${LIB_OUTPUT_DIR}/libonlp-platform-defaults.so.1
+
 sudo cp ${BIN_ONLPD}    ${OUTPUT_DIR}/bin/.
 sudo cp ${BIN_ONLPS}    ${OUTPUT_DIR}/bin/.
 sudo cp ${LIB_DEFAULTS} ${LIB_OUTPUT_DIR}/.
