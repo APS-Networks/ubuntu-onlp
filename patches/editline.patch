@@ -1,0 +1,18 @@
+
+Editline library has include directory in the base include directory, rather
+than being nested within /usr/include/editline/.
+
+
+Index: OpenNetworkLinuxv2/sm/bigcode/modules/ELS/module/inc/ELS/els.h
+===================================================================
+--- OpenNetworkLinuxv2.orig/sm/bigcode/modules/ELS/module/inc/ELS/els.h
++++ OpenNetworkLinuxv2/sm/bigcode/modules/ELS/module/inc/ELS/els.h
+@@ -33,7 +33,7 @@
+ #define __ELS_H__
+ 
+ #include <ELS/els_config.h>
+-#include <editline/readline.h>
++#include <editline.h>
+ #include <histedit.h>
+ 
+ /**

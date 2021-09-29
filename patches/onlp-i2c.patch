@@ -1,0 +1,89 @@
+diff --git a/packages/base/any/onlp/builds/onlp-platform-defaults/Makefile b/packages/base/any/onlp/builds/onlp-platform-defaults/Makefile
+index 8653aae0..1f1d9660 100644
+--- a/packages/base/any/onlp/builds/onlp-platform-defaults/Makefile
++++ b/packages/base/any/onlp/builds/onlp-platform-defaults/Makefile
+@@ -53,7 +53,7 @@ GLOBAL_CFLAGS += -DAIM_CONFIG_INCLUDE_CTOR_DTOR=1
+ GLOBAL_CFLAGS += -DONLP_PLATFORM_DEFAULTS_CONFIG_AS_PLATFORM=0
+ GLOBAL_CFLAGS += -I$(onlp_BASEDIR)/module/inc
+ GLOBAL_CFLAGS += -fPIC
+-GLOBAL_LINK_LIBS += -lpthread
++GLOBAL_LINK_LIBS += -lpthread -li2c
+ 
+ include $(BUILDER)/targets.mk
+ 
+diff --git a/packages/base/any/onlp/builds/onlp-platform/Makefile b/packages/base/any/onlp/builds/onlp-platform/Makefile
+index db4604e2..42bf7d3e 100644
+--- a/packages/base/any/onlp/builds/onlp-platform/Makefile
++++ b/packages/base/any/onlp/builds/onlp-platform/Makefile
+@@ -42,7 +42,7 @@ GLOBAL_CFLAGS += -DONLP_PLATFORM_DEFAULTS_CONFIG_AS_PLATFORM=1
+ GLOBAL_CFLAGS += -DAIM_CONFIG_INCLUDE_CTOR_DTOR=1
+ GLOBAL_CFLAGS += -I$(onlp_BASEDIR)/module/inc
+ GLOBAL_CFLAGS += -fPIC
+-GLOBAL_LINK_LIBS += -lpthread
++GLOBAL_LINK_LIBS += -li2c -lpthread
+ 
+ include $(BUILDER)/targets.mk
+ 
+diff --git a/packages/base/any/onlp/builds/onlp/Makefile b/packages/base/any/onlp/builds/onlp/Makefile
+index 3a5e18ed..e1f214ab 100644
+--- a/packages/base/any/onlp/builds/onlp/Makefile
++++ b/packages/base/any/onlp/builds/onlp/Makefile
+@@ -51,7 +51,7 @@ GLOBAL_CFLAGS += -DONLP_CONFIG_INCLUDE_UCLI=1
+ GLOBAL_CFLAGS += -DUCLI_CONFIG_INCLUDE_ELS_LOOP=1
+ 
+ GLOBAL_CFLAGS += -fPIC
+-GLOBAL_LINK_LIBS += -lpthread -ledit $(LIBONLP_PLATFORM) $(LIBONLP_PLATFORM_DEFAULTS)
++GLOBAL_LINK_LIBS += -lpthread -ledit -li2c $(LIBONLP_PLATFORM) $(LIBONLP_PLATFORM_DEFAULTS)
+ 
+ include $(BUILDER)/targets.mk
+ 
+diff --git a/packages/base/any/onlp/builds/onlpd/Makefile b/packages/base/any/onlp/builds/onlpd/Makefile
+index 1fa6c7ad..f1cceed8 100644
+--- a/packages/base/any/onlp/builds/onlpd/Makefile
++++ b/packages/base/any/onlp/builds/onlpd/Makefile
+@@ -47,7 +47,7 @@ GLOBAL_CFLAGS += -DUCLI_CONFIG_INCLUDE_ELS_LOOP=1
+ GLOBAL_CFLAGS += -DONLP_CONFIG_INCLUDE_UCLI=1
+ 
+ GLOBAL_LINK_LIBS += $(LIBONLP_SO) -Wl,--unresolved-symbols=ignore-in-shared-libs
+-GLOBAL_LINK_LIBS += -lpthread -lm -lrt -ledit
++GLOBAL_LINK_LIBS += -lpthread -lm -lrt -ledit -li2c
+ 
+ include $(BUILDER)/targets.mk
+ 
+diff --git a/packages/base/any/onlp/builds/platform/onlps.mk b/packages/base/any/onlp/builds/platform/onlps.mk
+index 3537adce..acbc1f79 100644
+--- a/packages/base/any/onlp/builds/platform/onlps.mk
++++ b/packages/base/any/onlp/builds/platform/onlps.mk
+@@ -38,6 +38,6 @@ GLOBAL_CFLAGS += -DAIM_CONFIG_INCLUDE_MODULES_INIT=1
+ GLOBAL_CFLAGS += -DAIM_CONFIG_INCLUDE_MAIN=1
+ GLOBAL_CFLAGS += -DUCLI_CONFIG_INCLUDE_ELS_LOOP=1
+ GLOBAL_CFLAGS += -DONLP_CONFIG_INCLUDE_UCLI=1
+-GLOBAL_LINK_LIBS += -lpthread -lm -ledit
++GLOBAL_LINK_LIBS += -li2c -lpthread -lm -ledit
+ 
+ include $(BUILDER)/targets.mk
+diff --git a/packages/base/any/onlp/src/onlplib/module/src/i2c.c b/packages/base/any/onlp/src/onlplib/module/src/i2c.c
+index 463d48b6..92865dcb 100644
+--- a/packages/base/any/onlp/src/onlplib/module/src/i2c.c
++++ b/packages/base/any/onlp/src/onlplib/module/src/i2c.c
+@@ -31,7 +31,8 @@
+ #include <unistd.h>
+ 
+ #if ONLPLIB_CONFIG_I2C_USE_CUSTOM_HEADER == 1
+-#include <linux/i2c-devices.h>
++#include <i2c/smbus.h>
++#include <linux/i2c-dev.h>
+ #else
+ #include <linux/i2c-dev.h>
+ #endif
+@@ -196,8 +197,8 @@ onlp_i2c_write(int bus, uint8_t addr, uint8_t offset, int size,
+     for(i = 0; i < size; i++) {
+         int rv = i2c_smbus_write_byte_data(fd, offset+i, data[i]);
+         if(rv < 0) {
+-            AIM_LOG_ERROR("i2c-%d: writing address 0x%x, offset %d failed: %{errno}",
+-                          bus, addr, offset+i, errno);
++            AIM_LOG_ERROR("i2c-%d: writing address 0x%x, offset %d failed: %s (errno: %d)",
++                bus, addr, offset+i, strerror(errno), errno);
+             goto error;
+         }
+     }
