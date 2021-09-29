@@ -34,7 +34,7 @@ export ONL_DEBIAN_SUITE=buster
 
 
 if [ ! -d ${ONL} ]; then
-    git clone --depth 1 https://github.com/APS-Networks/OpenNetworkLinuxv2 $ONL --branch staging
+    git clone --depth 1 git@github.com:APS-Networks/OpenNetworkLinuxv2.git $ONL --branch staging
     cd ${ONL}
 
     ${ONL}/tools/submodules.py ${ONL} sm/infra
