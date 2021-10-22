@@ -34,7 +34,7 @@ export ONL_DEBIAN_SUITE=buster
 
 
 if [ ! -d ${ONL} ]; then
-    git clone --depth 1 git@github.com:APS-Networks/OpenNetworkLinuxv2.git $ONL --branch staging
+    git clone --depth 1 git@github.com:APS-Networks/OpenNetworkLinuxv2.git $ONL --branch i2c-lock-mutex
     cd ${ONL}
 
     ${ONL}/tools/submodules.py ${ONL} sm/infra
@@ -66,21 +66,31 @@ if [ ! -d ${ONL} ]; then
     #     quanta \
     #     wnc
 
-    cd ${ONL}
 
-    mkdir -p $(dirname ${BUILDER_MODULE_DATABASE})
+    patch -p1 < ${SCRIPT_DIR}/patches/editline.patch
+
+else
+    cd ${ONL}
+    git clean -xfd
+    git submodule foreach --recursive git clean -xfd
+    git reset HEAD --hard
+#    git submodule foreach --recursive git reset --hard
+#    git submodule update --init --recursive
+    git pull
+fi
+
+cd ${ONL}
+
+mkdir -p $(dirname ${BUILDER_MODULE_DATABASE})
 
     
-    patch -p1 < ${SCRIPT_DIR}/patches/editline.patch
-    patch -p1 < ${SCRIPT_DIR}/patches/onlp-i2c.patch
+patch -p1 < ${SCRIPT_DIR}/patches/onlp-i2c.patch
 
-    PLATFORM_PATCHES=$(find ${SCRIPT_DIR}/patches/${PLATFORM} -type f -name "*.patch" -o -name "*.diff")
-    for patch in ${PLATFORM_PATCHES}; do
-	echo "Applying patch ${patch}"
-        patch -p1 < $patch
-    done
-
-fi
+PLATFORM_PATCHES=$(find ${SCRIPT_DIR}/patches/${PLATFORM} -type f -name "*.patch" -o -name "*.diff")
+for patch in ${PLATFORM_PATCHES}; do
+    echo "Applying patch ${patch}"
+    patch -p1 < $patch
+done
 
 BIN_OUTPUT_DIR=/usr/bin
 LIB_OUTPUT_DIR=/lib/x86_64-linux-gnu/
